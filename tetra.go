@@ -1,3 +1,7 @@
+// Command tetra implements a game of 4x4x4 tic tac toe.
+// It accepts moves from alternating players through standard input
+// as three coordinates in the range [0, 3], separated by whitespace.
+// A player wins by marking any four cells in a straight line.
 package main
 
 import "fmt"
