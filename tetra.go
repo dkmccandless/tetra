@@ -3,6 +3,16 @@ package main
 import "fmt"
 
 func main() {
+	switch m := PlayGame(); m {
+	case X, O:
+		fmt.Println(m, "wins!")
+	default:
+		fmt.Println("It's a draw. Good game!")
+	}
+}
+
+// PlayGame conducts a game and reports the winner, or Empty in the case of a draw.
+func PlayGame() Mark {
 	g := NewGrid()
 	g.Print()
 
@@ -24,20 +34,17 @@ func main() {
 			fmt.Println("Invalid move")
 			continue
 		}
-
 		g.Print()
 
 		// Check for game-ending conditions
-		if g.isWin(i, j, k) {
-			fmt.Println(m, "wins!")
-			break
+		switch {
+		case g.isWin(i, j, k):
+			return m
+		case g.isFull():
+			return Empty
+		default:
+			m = m.Opp()
 		}
-		if g.isFull() {
-			fmt.Println("It's a draw. Good game!")
-			break
-		}
-
-		m = m.Opp()
 	}
 }
 
@@ -78,8 +85,7 @@ func NewGrid() Grid {
 	return g
 }
 
-// Move writes m into g[i][j][k] if this is a legal move
-// and reports whether the move is legal.
+// Move writes m into g[i][j][k] if this is a legal move and reports whether the move is legal.
 // A move is legal if g[i][j][k] is originally empty.
 func (g Grid) Move(i, j, k int, m Mark) bool {
 	ok := g[i][j][k] == Empty
