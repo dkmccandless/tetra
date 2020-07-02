@@ -18,19 +18,19 @@ func PlayGame() Mark {
 
 	m := X
 	for {
-		var i, j, k int
+		var c Cell
 		fmt.Printf("%v's move: ", m)
-		if n, err := fmt.Scan(&i, &j, &k); n != 3 || err != nil {
+		if n, err := fmt.Scan(&c.i, &c.j, &c.k); n != 3 || err != nil {
 			fmt.Println(err)
 			continue
 		}
-		if i < 0 || i > 3 || j < 0 || j > 3 || k < 0 || k > 3 {
+		if c.i < 0 || c.i > 3 || c.j < 0 || c.j > 3 || c.k < 0 || c.k > 3 {
 			fmt.Println("Invalid cell")
 			continue
 		}
 
 		// Make the move if it's legal
-		if ok := g.Move(i, j, k, m); !ok {
+		if ok := g.Move(c, m); !ok {
 			fmt.Println("Invalid move")
 			continue
 		}
@@ -38,7 +38,7 @@ func PlayGame() Mark {
 
 		// Check for game-ending conditions
 		switch {
-		case g.isWin(i, j, k):
+		case g.isWin(c):
 			return m
 		case g.isFull():
 			return Empty
@@ -69,6 +69,9 @@ func (m Mark) Opp() Mark {
 // String returns a string representation of m.
 func (m Mark) String() string { return []string{" ", "X", "O"}[m] }
 
+// Cell is the coordinates of a cell in a Grid.
+type Cell struct{ i, j, k int }
+
 // Grid is a 4x4x4 cube of cells into which Marks can be placed.
 // The zero value represents an empty grid.
 type Grid [][][]Mark
@@ -85,18 +88,19 @@ func NewGrid() Grid {
 	return g
 }
 
-// Move writes m into g[i][j][k] if this is a legal move and reports whether the move is legal.
-// A move is legal if g[i][j][k] is originally empty.
-func (g Grid) Move(i, j, k int, m Mark) bool {
-	ok := g[i][j][k] == Empty
+// Move writes m into g at c if it is legal to do so and reports whether the move is legal.
+// A move is legal if c is originally Empty.
+func (g Grid) Move(c Cell, m Mark) bool {
+	ok := g[c.i][c.j][c.k] == Empty
 	if ok {
-		g[i][j][k] = m
+		g[c.i][c.j][c.k] = m
 	}
 	return ok
 }
 
-// isWin reports whether there is a straight line of four identical Marks through g[i][j][k].
-func (g Grid) isWin(i, j, k int) bool {
+// isWin reports whether g contains a straight line of four identical Marks through c.
+func (g Grid) isWin(c Cell) bool {
+	i, j, k := c.i, c.j, c.k
 	// Each cell is part of three lines, one parallel to each axis.
 	if sameMark(g[0][j][k], g[1][j][k], g[2][j][k], g[3][j][k]) ||
 		sameMark(g[i][0][k], g[i][1][k], g[i][2][k], g[i][3][k]) ||
